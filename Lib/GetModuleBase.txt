@@ -1,0 +1,20 @@
+DWORD GetModuleBase(LPSTR lpModuleName, DWORD dwProcessId)
+{
+    MODULEENTRY32 lpModuleEntry = {0};
+    HANDLE hSnapShot = CreateToolhelp32Snapshot( TH32CS_SNAPMODULE, dwProcessId );
+    if(!hSnapShot)
+        return NULL;
+    lpModuleEntry.dwSize = sizeof(lpModuleEntry);
+    BOOL bModule = Module32First( hSnapShot, &lpModuleEntry );
+    while(bModule)
+    {
+        if(!strcmp( lpModuleEntry.szModule, lpModuleName ) )
+        {
+            CloseHandle( hSnapShot );
+            return (DWORD)lpModuleEntry.modBaseAddr;
+        }
+        bModule = Module32Next( hSnapShot, &lpModuleEntry );
+    }
+    CloseHandle( hSnapShot );
+    return NULL;
+}
